@@ -1,0 +1,154 @@
+---
+title: "BIOSTAT 620 HWK 2 Jacob Vidergar"
+output: pdf_document
+date: "2024-03-07"
+---
+
+Github Link: https://github.com/jacobvid/BIOSTAT620_HWK2.git
+
+Problem 1: Choose all correct answers.
+(1a) A clinician chooses to run a case-control study in order to
+Correct Answers:
+A. control confounding factors;
+B. mitigate a low number of cases in the population for the recruitment of participants;
+
+(1b) Refer to Figure 6 on page 9 of the Lecture Notes, Chapter II. One of conditions required by an
+instrumental variable Z to control unmeasured confounders is that
+Correct Answer:
+C. it is correlated with the exposure variable X;
+
+(1c) In a clinical study that aims to compare a test drug A to placebo P, a clinician plans to design a
+fully randomized trial in that patients will be allocated with a treatment by chance. In this way, the
+research is able to
+Correct Answer:
+A. get rid of potential confounding effects;
+
+(1d) An epidemiologist plans to design a cohort study to study the influence of PM2.5 concentration
+on post-transplantation graft survival for ESRD patients in the USA who receive renal replacement
+therapy. As part of study design, both inclusion and exclusion criteria are created to
+Correct Answer:
+D. define the underlying study population to which analysis results may be applied.
+
+(1e) A public health scientist plans to conduct an observational study to evaluate the efficacy of the
+covid booster shot on risk of hospitalization using electronic health records from the U-M university
+hospital. In this study design, this researcher wants to divide the subjects in the database into several
+age groups, including 0-5, 6-12, 13-18, 19-50, 51-65, and 65+ years old, in order to
+Correct Answers:
+A. address potential heterogeneous risk of hospitalization associated with age;
+B. estimate age-specific efficacy of the covid booster shot on risk of hospitalization;
+
+-------------------------------------------------------------------------------------------
+
+Problem 2: Seemingly unrelated regression (SUR) is a widely used method to run multi-outcome
+regression analysis. This modeling approach may be applied for the analysis of screen activity data
+collected from your mobile devices. Use the R function systemfit with the method option of SUR to
+fit your own data that you used previously in Homework #1 with the data freeze date of Jan 26, 2024.
+
+Here we consider bivariate outcomes: daily total screen time (denoted by Y1(t)) and daily total social
+screen time (denoted by Y2(t)). These two outcomes are known to be strongly correlated. Three
+covariates are of interest, including lag-1 outcome Y1(t−1) or Y2(t−1) to capture a temporal dependence
+as well as two dummy variables X(t) and Z(t) defined in Homework #1. They are, X(t) = 1 for day t
+being a weekday and 0 for day t being a weekend day; Z(t) = 1 for day t being January, 10 (the first
+day of the winter semester) or after, and 0 for day t before January, 10 (the winter holiday day)
+
+a. Fit a transitional SUR model where Cov(ε1(t), ε2(t)) = ρσ1σ2
+Note that each regression model may have its own set of
+covariates. Report the estimates of the model parameters from the R output
+
+```{r}
+library(readxl)
+screenData <- read_excel("BIOSTAT 620 Data (Through Jan 26).xlsx")
+
+# Dummy variables
+screenData$Xt <- ifelse(weekdays(screenData$Date) %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'), 1, 0)
+screenData$Zt <- ifelse(screenData$Date >= as.Date("2024-01-10"), 1, 0)
+
+# Create lag columns
+library(dplyr)
+
+screenData <- screenData %>%
+  mutate(
+    Total.ST.min_lag1 = lag(Total.ST.min),
+    Social.ST.min_lag1 = lag(Social.ST.min)
+  )
+
+library(systemfit)
+
+
+# Fit SUR model
+sur_model <- systemfit(
+  list(Y1 = Total.ST.min ~ Total.ST.min_lag1 + Xt + Zt,
+  Y2 = Social.ST.min ~ Social.ST.min_lag1 + Xt + Zt),
+  data = screenData,
+  method = "SUR"
+)
+
+# Summary contains estimates for parameters, but they are also listed below
+summary(sur_model)
+
+
+
+```
+
+Model 1 Estimates:
+Total.ST.min_lag1   0.174508
+Xt                 21.730720
+Zt                -25.251430
+
+Model 2 Estimates:
+Social.ST.min_lag1   0.00377377   
+Xt                 -12.07005301   
+Zt                 -14.25838892
+
+b. Identify covariates in each model that are statistically significant at
+level α = 0.05. Explain.
+
+From the data collected, it can be seen that none of the parameters are significant
+as the p values for each is all above
+
+c. Test the null hypothesis β3 = γ3 = 0, that is, Z(t) is not an important 
+predictor in BOTH screen time outcomes. Draw conclusion at α = 0.05 level.
+
+Based on the above model, we fail to reject the null hypothesis 
+(p = 0.48566557, 0.42684) for both models. We cannot say with certainty whether
+Z(t) is an important predictor in both screen time outcomes due to these results.
+
+-------------------------------------------------------------------------------------------
+
+Problem 3: Consider a linear model that is used to estimate the treatment effect based on a dataset
+collected from a randomized clinical trial.
+
+a. Explain why Xi and εi are independent
+
+X is independent from the error due to the fact that this is a randomized clinical trial.
+When the treatment being assigned is random (as it is in this case), it is unrelated
+to any characteristics of the individuals in the study.
+
+b. In model (1), explain which parameter represents the treatment effect of drug A, and explain
+which parameter represents the treatment effect of drug B.
+
+In model (1), the parameter beta_1 is used to represent the treatment effect 
+of both drug A and drug B. Because of the way Xi is coded, the true value of 
+beta_1 will represent the treatment effect of drug A, and the value of
+-1 * beta_1 will represent the treatment effect of drug B.
+
+c. Show that the treatment effects identified in part (b) are invariant for the inclusion of any
+confounding covariate Z into the model (1)
+
+Including a confounding covariate Z in the model would not have any effect on the value of
+beta_1. The model would be of the form: Yi = beta_0 + beta_1 * Xi + Zi + error,
+and therefore, no matter what Zi is, it would not have any effect on the estimate of
+beta_1.
+
+d. Give the estimate of the causal effect (i.e. ATE) when drug B is a placebo.
+ATE = E[Y(1) - Y(0)] = beta_0 + beta_1 + Zi + error - (beta_0 + Zi + error)
+= beta_1. Because drug B is a placebo, the estimate of the causal effect is beta_1.
+
+-------------------------------------------------------------------------------------------
+
+Problems 4 and 5 done on paper, see next couple pages
+
+
+
+
+
