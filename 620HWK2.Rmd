@@ -72,10 +72,11 @@ screenData <- screenData %>%
     Social.ST.min_lag1 = lag(Social.ST.min)
   )
 
-library(systemfit)
 
 
 # Fit SUR model
+library(systemfit)
+
 sur_model <- systemfit(
   list(Y1 = Total.ST.min ~ Total.ST.min_lag1 + Xt + Zt,
   Y2 = Social.ST.min ~ Social.ST.min_lag1 + Xt + Zt),
