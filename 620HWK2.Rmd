@@ -51,7 +51,7 @@ as well as two dummy variables X(t) and Z(t) defined in Homework #1. They are, X
 being a weekday and 0 for day t being a weekend day; Z(t) = 1 for day t being January, 10 (the first
 day of the winter semester) or after, and 0 for day t before January, 10 (the winter holiday day)
 
-a. Fit a transitional SUR model where Cov(ε1(t), ε2(t)) = ρσ1σ2
+a. Fit a transitional SUR model
 Note that each regression model may have its own set of
 covariates. Report the estimates of the model parameters from the R output
 
@@ -87,8 +87,6 @@ sur_model <- systemfit(
 # Summary contains estimates for parameters, but they are also listed below
 summary(sur_model)
 
-
-
 ```
 
 Model 1 Estimates:
@@ -102,12 +100,12 @@ Xt                 -12.07005301
 Zt                 -14.25838892
 
 b. Identify covariates in each model that are statistically significant at
-level α = 0.05. Explain.
+level a = 0.05. Explain.
 
 From the data collected, it can be seen that none of the parameters are significant
 as the p values for each is all above
 
-c. Test the null hypothesis β3 = γ3 = 0, that is, Z(t) is not an important 
+c. Test the null hypothesis beta_3 = gamma_3 = 0, that is, Z(t) is not an important 
 predictor in BOTH screen time outcomes. Draw conclusion at α = 0.05 level.
 
 Based on the above model, we fail to reject the null hypothesis 
@@ -119,7 +117,7 @@ Z(t) is an important predictor in both screen time outcomes due to these results
 Problem 3: Consider a linear model that is used to estimate the treatment effect based on a dataset
 collected from a randomized clinical trial.
 
-a. Explain why Xi and εi are independent
+a. Explain why Xi and epsilon_i are independent
 
 X is independent from the error due to the fact that this is a randomized clinical trial.
 When the treatment being assigned is random (as it is in this case), it is unrelated
@@ -142,7 +140,9 @@ and therefore, no matter what Zi is, it would not have any effect on the estimat
 beta_1.
 
 d. Give the estimate of the causal effect (i.e. ATE) when drug B is a placebo.
-ATE = E[Y(1) - Y(0)] = beta_0 + beta_1 + Zi + error - (beta_0 + Zi + error)
+When drug b is a placebo, the beta_1 value for drug be becomes 0 (a placebo
+has no effect on the outcome). So, beta_1 * Xi = 0*-1 = 0.
+ATE = E[Y(1) - Y(-1)] = beta_0 + beta_1 + Zi + error - (beta_0 + Zi + error)
 = beta_1. Because drug B is a placebo, the estimate of the causal effect is beta_1.
 
 -------------------------------------------------------------------------------------------
